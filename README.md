@@ -23,6 +23,25 @@ _Latest development version:_
 [![Lint](https://github.com/PhotoboothProject/photobooth/actions/workflows/lint.yml/badge.svg)](https://github.com/PhotoboothProject/photobooth/actions/workflows/lint.yml)
 [![gulp-sass](https://github.com/PhotoboothProject/photobooth/actions/workflows/gulp_sass.yml/badge.svg)](https://github.com/PhotoboothProject/photobooth/actions/workflows/gulp_sass.yml)
 [![Build](https://github.com/PhotoboothProject/photobooth/actions/workflows/build.yml/badge.svg)](https://github.com/PhotoboothProject/photobooth/actions/workflows/build.yml)
+## :install: Linux
+A valid username is needed to run the installer. Your OS username must be passed by the -username flag to the installer.
+
+wget -O install-photobooth.sh https://raw.githubusercontent.com/PhotoboothProject/photobooth/dev/install-photobooth.sh
+sudo bash install-photobooth.sh -username='<YourUsername>'
+For the user "pi", the command to install Photobooth needs to be:
+
+sudo bash install-photobooth.sh -username='pi'
+By default Apache is used for an easy and no-hassle setup as NGINX needs some additional steps. To use NGINX run
+
+sudo bash install-photobooth.sh -username='<YourUsername>' -webserver='nginx'
+(additional Setup note: Cromakeying is saving without finishing saving ).
+
+To get to know all options you can simply run sudo bash install-photobooth.sh -help.
+
+## :update: Linux
+
+wget -O install-photobooth.sh https://raw.githubusercontent.com/PhotoboothProject/photobooth/dev/install-photobooth.sh
+sudo bash install-photobooth.sh --update --username='<YourUsername>'
 
 ## :camera: Screenshots
 
