@@ -12,7 +12,7 @@ DATE=$(date +"%Y%m%d-%H-%M")
 IPADDRESS=$(hostname -I | cut -d " " -f 1)
 PHOTOBOOTH_TMP_LOG="/tmp/$DATE-photobooth.txt"
 
-BRANCH="dev"
+BRANCH="main"
 GIT_INSTALL=true
 SUBFOLDER=true
 KIOSK_MODE=false
@@ -927,13 +927,13 @@ function commit_git_changes() {
     if [ "$(sudo -u www-data git config user.name)" = "" ]; then
         warn "WARN: git user.name not set!"
         info "### Setting git user.name."
-        sudo -u www-data git config user.name Photobooth
+        sudo -u www-data git config user.name blackmars-e
     fi
 
     if [ "$(sudo -u www-data git config user.email)" = "" ]; then
         warn "WARN: git user.email not set!"
         info "### Setting git user.email."
-        sudo -u www-data git config user.email Photobooth@localhost
+        sudo -u www-data git config user.email marcel.boehnert@googlemail.com
     fi
 
     echo "git user.name: $(sudo -u www-data git config user.name)"
