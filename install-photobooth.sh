@@ -573,9 +573,9 @@ function add_git_remote() {
     cd "$INSTALLFOLDERPATH"/
     info "### Checking needed remote information..."
     if sudo -u www-data git config remote.photoboothproject.url >/dev/null; then
-        info "### photoboothproject remote exist already"
-        if sudo -u www-data git config remote.origin.url == "git@github.com:andi34/photobooth" || sudo -u www-data git config remote.origin.url == "https://github.com/andi34/photobooth.git"; then
-            info "origin remote is andi34"
+        info "### photoboothproject remote already exists"
+        if sudo -u www-data git config remote.origin.url == "git@github.com:blackmars-e/Photobooth.git" || sudo -u www-data git config remote.origin.url == "https://github.com/blackmars-e/Photobooth.git"; then
+            info "origin remote is set to blackmars-e"
         fi
     else
         info "### Adding photoboothproject remote..."
@@ -612,7 +612,7 @@ function start_git_install() {
             info "### Changes applied successfully!"
             sudo -u www-data git reset --soft HEAD^
         else
-            error "ERROR: can not apply your local changes automatically!"
+            error "ERROR: cannot apply your local changes automatically!"
             sudo -u www-data git am --abort
         fi
 
@@ -646,6 +646,7 @@ function start_install() {
         cd "$INSTALLFOLDERPATH"
     fi
 }
+
 
 function detect_browser() {
     if [ "$(dpkg-query -W -f='${Status}' "chromium-browser" 2>/dev/null | grep -c "ok installed")" -eq 1 ]; then
