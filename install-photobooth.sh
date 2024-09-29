@@ -927,13 +927,13 @@ function commit_git_changes() {
     if [ "$(sudo -u www-data git config user.name)" = "" ]; then
         warn "WARN: git user.name not set!"
         info "### Setting git user.name."
-        sudo -u www-data git config user.name blackmars-e
+        sudo -u www-data git config user.name Photobooth
     fi
 
     if [ "$(sudo -u www-data git config user.email)" = "" ]; then
         warn "WARN: git user.email not set!"
         info "### Setting git user.email."
-        sudo -u www-data git config user.email marcel.boehnert@googlemail.com
+        sudo -u www-data git config user.email Photobooth@localhost
     fi
 
     echo "git user.name: $(sudo -u www-data git config user.name)"
