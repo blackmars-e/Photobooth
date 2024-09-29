@@ -88,7 +88,7 @@ const photoboothPreview = (function () {
                 api.stream = stream;
                 video.get(0).srcObject = stream;
                 cb();
-            })
+            }
             .catch(function (error) {
                 photoboothTools.console.log('ERROR: Preview: Could not get user media: ', error);
                 if (retry < retryGetMedia) {
