@@ -579,7 +579,7 @@ function add_git_remote() {
         fi
     else
         info "### Adding photoboothproject remote..."
-        sudo -u www-data git remote add photoboothproject https://github.com/PhotoboothProject/photobooth.git
+        sudo -u www-data git remote add photoboothproject https://github.com/blackmars-e/Photobooth.git
     fi
 }
 
@@ -631,13 +631,13 @@ function start_git_install() {
 function start_install() {
     info "### Now we are going to install Photobooth."
     if [ "$GIT_INSTALL" = true ]; then
-        sudo -u www-data git clone https://github.com/PhotoboothProject/photobooth "$INSTALLFOLDER"
+        sudo -u www-data git clone https://github.com/blackmars-e/Photobooth "$INSTALLFOLDER"
         cd "$INSTALLFOLDERPATH"
         add_git_remote
         start_git_install
     else
         info "### We are downloading the latest release and extracting it to $INSTALLFOLDERPATH."
-        sudo -u www-data curl -s https://api.github.com/repos/PhotoboothProject/photobooth/releases/latest |
+        sudo -u www-data curl -s https://api.github.com/repos/blackmars-e/Photobooth/releases/latest |
             jq '.assets[].browser_download_url | select(endswith(".tar.gz"))' |
             xargs curl -L --output /tmp/photobooth-latest.tar.gz
 
