@@ -12,7 +12,7 @@ DATE=$(date +"%Y%m%d-%H-%M")
 IPADDRESS=$(hostname -I | cut -d " " -f 1)
 PHOTOBOOTH_TMP_LOG="/tmp/$DATE-photobooth.txt"
 
-BRANCH="dev"
+BRANCH="main"
 GIT_INSTALL=true
 SUBFOLDER=true
 KIOSK_MODE=false
