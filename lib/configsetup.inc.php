@@ -1280,6 +1280,7 @@ return [
                 'none' => 'None',
                 'device_cam' => 'from device cam (no remote preview)',
                 'url' => 'from URL (remote preview)',
+                'elgato_cam' => 'from Elgato cam LINK'
             ],
             'value' => $config['preview']['mode'],
         ],
