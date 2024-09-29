@@ -1,5 +1,3 @@
-/* eslint n/no-unsupported-features/node-builtins: "off" */
-/* globals initPhotoSwipeFromDOM initRemoteBuzzerFromDOM processChromaImage remoteBuzzerClient rotaryController globalGalleryHandle photoboothTools photoboothPreview */
 
 const photoBooth = (function () {
     const PhotoStyle = {
@@ -18,7 +16,8 @@ const photoBooth = (function () {
         PreviewMode = {
             NONE: 'none',
             DEVICE: 'device_cam',
-            URL: 'url'
+            URL: 'url',
+            ELGATO: 'elgato_cam'
         },
         PreviewStyle = {
             FILL: 'fill',

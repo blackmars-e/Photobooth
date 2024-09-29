@@ -11,7 +11,8 @@ const photoboothPreview = (function () {
         PreviewMode = {
             NONE: 'none',
             DEVICE: 'device_cam',
-            URL: 'url'
+            URL: 'url',
+            ELGATO: 'elgato_cam'
         },
         webcamConstraints = {
             audio: false,
@@ -19,6 +20,14 @@ const photoboothPreview = (function () {
                 width: config.preview.videoWidth,
                 height: config.preview.videoHeight,
                 facingMode: config.preview.camera_mode
+            }
+        },
+        elgatoConstraints = {
+            audio: false,
+            video: {
+                width: config.preview.videoWidth,
+                height: config.preview.videoHeight,
+                label: 'Cam Link'
             }
         },
         api = {};
@@ -67,9 +76,14 @@ const photoboothPreview = (function () {
             return;
         }
 
-        getMedia
-            .call(navigator.mediaDevices, webcamConstraints)
-            .then(function (stream) {
+        if (config.preview.mode === PreviewMode.ELGATO && elgatoConstraints.video.label) {
+            const deviceId = await api.findDeviceByLabel(elgatoConstraints.video.label);
+            if (deviceId) {
+                elgatoConstraints.video.deviceId = { exact: deviceId };
+            }
+
+            try {
+                const stream = await getMedia(elgatoConstraints);
                 photoboothTools.console.logDev('Preview: getMedia done!');
                 api.stream = stream;
                 video.get(0).srcObject = stream;
@@ -136,11 +150,7 @@ const photoboothPreview = (function () {
                 api.runCmd('start');
                 break;
             case CameraDisplayMode.BACKGROUND:
-                if (
-                    config.preview.mode === PreviewMode.DEVICE.valueOf() &&
-                    config.commands.preview &&
-                    !config.preview.bsm
-                ) {
+                if ((config.preview.mode === PreviewMode.DEVICE || config.preview.mode === PreviewMode.ELGATO) && config.preview.cmd && !config.preview.bsm) {
                     photoboothTools.console.logDev('Preview: Running preview cmd (BACKGROUND).');
                     api.runCmd('start');
                 }
@@ -157,7 +167,7 @@ const photoboothPreview = (function () {
                         api.runCmd('start');
                     }
                 }
-                if (config.preview.mode === PreviewMode.DEVICE.valueOf()) {
+                if (config.preview.mode === PreviewMode.DEVICE || config.preview.mode === PreviewMode.ELGATO) {
                     photoboothTools.console.logDev('Preview: Preview at countdown from device cam.');
                     api.getAndDisplayMedia(CameraDisplayMode.COUNTDOWN);
                 } else if (config.preview.mode === PreviewMode.URL.valueOf()) {
@@ -169,7 +179,7 @@ const photoboothPreview = (function () {
                 }
                 break;
             case CameraDisplayMode.TEST:
-                if (config.preview.mode === PreviewMode.DEVICE.valueOf()) {
+                if (config.preview.mode === PreviewMode.DEVICE || config.preview.mode === PreviewMode.ELGATO) {
                     photoboothTools.console.logDev('Preview: Preview from device cam.');
                     api.getAndDisplayMedia(CameraDisplayMode.TEST);
                 } else if (config.preview.mode === PreviewMode.URL.valueOf()) {
@@ -190,7 +200,7 @@ const photoboothPreview = (function () {
         if (config.commands.preview_kill) {
             api.runCmd('stop');
         }
-        if (config.preview.mode === PreviewMode.DEVICE.valueOf()) {
+        if (config.preview.mode === PreviewMode.DEVICE || config.preview.mode === PreviewMode.ELGATO) {
             api.stopVideo();
         } else if (config.preview.mode === PreviewMode.URL.valueOf()) {
             url.removeClass('streaming');
