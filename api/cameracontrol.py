@@ -41,23 +41,6 @@ class UnsupportedConfigException(Exception):
     pass
 
 
-def recreate_virtual_camera(video_nr=9):
-    """
-    Re-Create a device and return device path
-
-    raises subprocess.CalledProcessError if not working
-    """
-
-    subprocess.run(
-        f"rmmod modprobe v4l2loopback",
-        shell=True,
-        check=False,
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-    )
-    return create_virtual_camera(video_nr)
-
-
 def create_virtual_camera(video_nr=9):
     """
     Create a device and return device path
@@ -165,7 +148,7 @@ class CameraControl:
 
         log.info("Capturing image")
         file_path = self.camera.capture(gp.GP_CAPTURE_IMAGE)
-        self.camera.wait_for_event(1000)
+        self.camera.wait_for_event(2000)
         log.info("Camera file path: {0}/{1}".format(file_path.folder, file_path.name))
         file_jpg = str(file_path.name).replace(".CR2", ".JPG")
         log.info("Copying image to %s" % path)
@@ -614,31 +597,6 @@ def main():
         "--debug",
         action="store_true",
         help="enable debug mode",
-    )
-    parser.add_argument(
-        "-b",
-        "--bsm",
-        action="store_true",
-        help="start preview, but quit preview after taking an \
-                        image and wait for message to start preview again",
-        dest="bsm",
-    )
-    parser.add_argument(
-        "--bsmx",
-        action="store_true",
-        help="In bsm mode: prevent cameracontrol.py from restarting \
-                        the video. Useful to just execute a command",
-        dest="bsmx",
-    )
-    parser.add_argument(
-        "--bsmtime",
-        default=0,
-        type=int,
-        help=(
-            "Keep preview active for the specified time in minutes"
-            " before ending the preview video. Set to 0 to disable"
-        ),
-        dest="bsm_timeOut",
     )
     parser.add_argument(
         "-v",
