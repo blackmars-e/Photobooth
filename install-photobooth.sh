@@ -595,6 +595,32 @@ function check_git_install() {
     fi
 }
 
+function add_git_remote() {
+    cd "$INSTALLFOLDERPATH"/
+    info "### Checking needed remote information..."
+    if sudo -u www-data git config remote.photoboothproject.url >/dev/null; then
+        info "### photoboothproject remote already exists"
+        if sudo -u www-data git config remote.origin.url == "git@github.com:blackmars-e/Photobooth.git" || sudo -u www-data git config remote.origin.url == "https://github.com/blackmars-e/Photobooth.git"; then
+            info "origin remote is set to blackmars-e"
+        fi
+    else
+        info "### Adding photoboothproject remote..."
+        sudo -u www-data git remote add photoboothproject https://github.com/blackmars-e/Photobooth.git
+    fi
+}
+
+function check_git_install() {
+    cd "$INSTALLFOLDERPATH"
+    info "### Checking for git Installation"
+    if [ "$(sudo -u www-data git rev-parse --is-inside-work-tree)" = true ]; then
+        info "### Photobooth installed via git."
+        GIT_INSTALL=true
+        add_git_remote
+    else
+        warn "WARN: Not a git Installation."
+    fi
+}
+
 function start_git_install() {
     cd "$INSTALLFOLDERPATH"
     info "### We are installing/updating Photobooth via git."
@@ -646,6 +672,7 @@ function start_install() {
         cd "$INSTALLFOLDERPATH"
     fi
 }
+
 
 
 function detect_browser() {
