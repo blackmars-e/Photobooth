@@ -55,11 +55,8 @@ const photoBooth = (function () {
         videoAnimation = $('#videoAnimation'),
         resultVideo = $('#resultVideo'),
         resultVideoQR = $('#resultVideoQR'),
-        usesBackgroundPreview =
-            config.preview.asBackground &&
-            config.preview.mode === PreviewMode.DEVICE.valueOf() &&
-            ((config.commands.preview && !config.preview.bsm) || !config.commands.preview),
-        timeToLive = config.picture.time_to_live * 1000,
+        usesBackgroundPreview = config.preview.asBackground && (config.preview.mode === PreviewMode.DEVICE.valueOf()||config.preview.mode === PreviewMode.ELGATO.valueOf() ) && (config.preview.cmd && !config.preview.bsm || !config.preview.cmd),
+	timeToLive = config.picture.time_to_live * 1000,
         continuousCollageTime = config.collage.continuous_time * 1000,
         retryTimeout = config.picture.retry_timeout * 1000,
         notificationTimeout = config.ui.notification_timeout * 1000;
