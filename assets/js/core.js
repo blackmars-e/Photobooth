@@ -1,3 +1,5 @@
+/* eslint n/no-unsupported-features/node-builtins: "off" */
+/* globals initPhotoSwipeFromDOM initRemoteBuzzerFromDOM processChromaImage remoteBuzzerClient rotaryController globalGalleryHandle photoboothTools photoboothPreview */
 
 const photoBooth = (function () {
     const PhotoStyle = {
