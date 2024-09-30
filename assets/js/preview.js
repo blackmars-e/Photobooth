@@ -48,7 +48,8 @@ const photoboothPreview = (function () {
         video.show();
     };
 
-    api.initializeMedia = function (
+    // Mark initializeMedia as async
+    api.initializeMedia = async function (
         cb = () => {
             return;
         },
@@ -130,11 +131,11 @@ const photoboothPreview = (function () {
         }
     };
 
-    api.getAndDisplayMedia = function (mode) {
+    api.getAndDisplayMedia = async function (mode) {
         if (api.stream && api.stream.active) {
             api.changeVideoMode(mode);
         } else {
-            api.initializeMedia(() => {
+            await api.initializeMedia(() => {
                 api.changeVideoMode(mode);
             });
         }
@@ -158,7 +159,7 @@ const photoboothPreview = (function () {
             });
     };
 
-    api.startVideo = function (mode, retry = 0, maxGetMediaRetry = 3) {
+    api.startVideo = async function (mode, retry = 0, maxGetMediaRetry = 3) {
         retryGetMedia = maxGetMediaRetry;
         photoboothTools.console.log('Preview: startVideo mode: ' + mode);
         if (config.preview.mode !== PreviewMode.URL.valueOf()) {
@@ -177,7 +178,7 @@ const photoboothPreview = (function () {
                     photoboothTools.console.logDev('Preview: Running preview cmd (BACKGROUND).');
                     api.runCmd('start');
                 }
-                api.getAndDisplayMedia(CameraDisplayMode.BACKGROUND);
+                await api.getAndDisplayMedia(CameraDisplayMode.BACKGROUND);
                 break;
             case CameraDisplayMode.COUNTDOWN:
                 if (config.commands.preview) {
@@ -192,7 +193,7 @@ const photoboothPreview = (function () {
                 }
                 if (config.preview.mode === PreviewMode.DEVICE || config.preview.mode === PreviewMode.ELGATO) {
                     photoboothTools.console.logDev('Preview: Preview at countdown from device cam.');
-                    api.getAndDisplayMedia(CameraDisplayMode.COUNTDOWN);
+                    await api.getAndDisplayMedia(CameraDisplayMode.COUNTDOWN);
                 } else if (config.preview.mode === PreviewMode.URL.valueOf()) {
                     photoboothTools.console.logDev('Preview: Preview at countdown from URL.');
                     setTimeout(function () {
@@ -204,7 +205,7 @@ const photoboothPreview = (function () {
             case CameraDisplayMode.TEST:
                 if (config.preview.mode === PreviewMode.DEVICE || config.preview.mode === PreviewMode.ELGATO) {
                     photoboothTools.console.logDev('Preview: Preview from device cam.');
-                    api.getAndDisplayMedia(CameraDisplayMode.TEST);
+                    await api.getAndDisplayMedia(CameraDisplayMode.TEST);
                 } else if (config.preview.mode === PreviewMode.URL.valueOf()) {
                     photoboothTools.console.logDev('Preview: Preview from URL.');
                     setTimeout(function () {
