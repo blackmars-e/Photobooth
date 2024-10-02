@@ -40,6 +40,13 @@ const photoboothPreview = (function () {
         collageFrame,
         retryGetMedia = 3;
 
+    // Add findDeviceByLabel function to the api object
+    api.findDeviceByLabel = async function (label) {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoDevice = devices.find(device => device.kind === 'videoinput' && device.label.includes(label));
+        return videoDevice ? videoDevice.deviceId : null;
+    };
+
     api.changeVideoMode = function (mode) {
         photoboothTools.console.logDev('Preview: Changing video mode: ' + mode);
         if (mode !== CameraDisplayMode.BACKGROUND) {
@@ -62,7 +69,6 @@ const photoboothPreview = (function () {
             config.preview.mode === PreviewMode.URL.valueOf()
         ) {
             photoboothTools.console.logDev('Preview: No preview from device cam or no webcam available!');
-
             return;
         }
         const getMedia =
@@ -73,7 +79,6 @@ const photoboothPreview = (function () {
 
         if (!getMedia) {
             photoboothTools.console.logDev('Preview: Could not get media!');
-
             return;
         }
 
@@ -174,7 +179,11 @@ const photoboothPreview = (function () {
                 api.runCmd('start');
                 break;
             case CameraDisplayMode.BACKGROUND:
-                if ((config.preview.mode === PreviewMode.DEVICE || config.preview.mode === PreviewMode.ELGATO) && config.preview.cmd && !config.preview.bsm) {
+                if (
+                    (config.preview.mode === PreviewMode.DEVICE || config.preview.mode === PreviewMode.ELGATO) &&
+                    config.preview.cmd &&
+                    !config.preview.bsm
+                ) {
                     photoboothTools.console.logDev('Preview: Running preview cmd (BACKGROUND).');
                     api.runCmd('start');
                 }
