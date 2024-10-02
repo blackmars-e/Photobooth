@@ -710,7 +710,7 @@ class PhotoboothConfiguration implements ConfigurationInterface
             ->ignoreExtraKeys()
             ->children()
                 ->enumNode('mode')
-                    ->values(['none', 'device_cam', 'url'])
+                    ->values(['none', 'device_cam', 'url','elgato_cam'])
                     ->defaultValue('none')
                     ->end()
                 ->booleanNode('camTakesPic')->defaultValue(false)->end()
