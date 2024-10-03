@@ -68,7 +68,10 @@ const photoboothPreview = (function () {
             return;
         }
 
-        const getMedia = navigator.mediaDevices.getUserMedia || navigator.mediaDevices.webkitGetUserMedia || navigator.mediaDevices.mozGetUserMedia || false;
+        const getMedia = (navigator.mediaDevices.getUserMedia || 
+                          navigator.mediaDevices.webkitGetUserMedia || 
+                          navigator.mediaDevices.mozGetUserMedia || 
+                          false).bind(navigator.mediaDevices); // Bind correct context
 
         if (!getMedia) {
             photoboothTools.console.logDev('Preview: Could not get media!');
