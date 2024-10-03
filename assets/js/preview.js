@@ -68,7 +68,7 @@ const photoboothPreview = (function () {
     };
 
     // Initialize media
-    api.initializeMedia = async function (cb = () => {}, retry = 0) {
+    api.initializeMedia = async function (cb = () => {}) {
         photoboothTools.console.logDev('Preview: Trying to initialize media...');
         if (!navigator.mediaDevices || config.preview.mode === PreviewMode.NONE.valueOf() || config.preview.mode === PreviewMode.URL.valueOf()) {
             photoboothTools.console.logDev('Preview: No preview from device cam or no webcam available!');
@@ -99,7 +99,7 @@ const photoboothPreview = (function () {
                 cb();
             } catch (error) {
                 console.error('ERROR: Preview: Could not get user media for Elgato: ', error);
-                handleMediaRetry(cb, retry);
+                handleMediaRetry(cb);
             }
         } else {
             try {
@@ -110,12 +110,12 @@ const photoboothPreview = (function () {
                 cb();
             } catch (error) {
                 console.error('ERROR: Preview: Could not get user media for webcam: ', error);
-                handleMediaRetry(cb, retry);
+                handleMediaRetry(cb);
             }
         }
     };
 
-    function handleMediaRetry(cb, retry) {
+    function handleMediaRetry(cb, retry = 0) {
         if (retry < retryGetMedia) {
             photoboothTools.console.logDev('Preview: Retrying to get user media. Retry ' + retry + ' / ' + retryGetMedia);
             retry += 1;
@@ -149,7 +149,7 @@ const photoboothPreview = (function () {
                 photoboothTools.console.log('Preview: ' + dataVideo.play + ' webcam successfully.');
                 pid = result.pid;
             })
-            .fail(function (xhr, status, result) {
+            .fail(function () {
                 photoboothTools.console.log('ERROR: Preview: Failed to ' + dataVideo.play + ' webcam!');
             });
     };
@@ -253,4 +253,3 @@ $(function () {
     photoboothPreview.init();
     photoboothTools.console.log('Preview: Preview functions available.');
 });
-``
