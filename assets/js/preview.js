@@ -40,15 +40,22 @@ const photoboothPreview = (function () {
         collageFrame,
         retryGetMedia = 3;
 
-    // Find device by label
+    // Find device by label (with case-insensitive partial matching)
     api.findDeviceByLabel = async function (label) {
         const devices = await navigator.mediaDevices.enumerateDevices();
+
+        // Log all video input devices for debugging
         devices.forEach(device => {
             if (device.kind === 'videoinput') {
                 console.log(`Device: ${device.label}, ID: ${device.deviceId}`);
             }
         });
-        const videoDevice = devices.find(device => device.kind === 'videoinput' && device.label.includes(label));
+
+        // Convert labels to lowercase for case-insensitive matching
+        const videoDevice = devices.find(device => 
+            device.kind === 'videoinput' && device.label.toLowerCase().includes(label.toLowerCase())
+        );
+
         return videoDevice ? videoDevice.deviceId : null;
     };
 
@@ -246,3 +253,4 @@ $(function () {
     photoboothPreview.init();
     photoboothTools.console.log('Preview: Preview functions available.');
 });
+``
