@@ -43,7 +43,16 @@ const photoboothPreview = (function () {
     // Add findDeviceByLabel function to the api object
     api.findDeviceByLabel = async function (label) {
         const devices = await navigator.mediaDevices.enumerateDevices();
-        const videoDevice = devices.find(device => device.kind === 'videoinput' && device.label.includes(label));
+   devices.forEach(device => {
+        if (device.kind === 'videoinput') {
+            console.log(`Device: ${device.label}, ID: ${device.deviceId}`);
+        }
+    });
+
+
+
+        const videoDevice = devices.find((device) => device.kind === 'videoinput' && device.label.includes(label));
+	 photoboothTools.console.logDev('test');
         return videoDevice ? videoDevice.deviceId : null;
     };
 
@@ -82,7 +91,7 @@ const photoboothPreview = (function () {
             return;
         }
 
-        if (config.preview.mode === PreviewMode.ELGATO && elgatoConstraints.video.label) {
+        if (config.preview.mode === PreviewMode.ELGATO ) {
             const deviceId = await api.findDeviceByLabel(elgatoConstraints.video.label);
             if (deviceId) {
                 elgatoConstraints.video.deviceId = { exact: deviceId };
