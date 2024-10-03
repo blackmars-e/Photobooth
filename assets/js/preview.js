@@ -40,22 +40,15 @@ const photoboothPreview = (function () {
         collageFrame,
         retryGetMedia = 3;
 
-    // Find device by label (with case-insensitive partial matching)
+    // Find device by label
     api.findDeviceByLabel = async function (label) {
         const devices = await navigator.mediaDevices.enumerateDevices();
-
-        // Log all video input devices for debugging
         devices.forEach(device => {
             if (device.kind === 'videoinput') {
                 console.log(`Device: ${device.label}, ID: ${device.deviceId}`);
             }
         });
-
-        // Convert labels to lowercase for case-insensitive matching
-        const videoDevice = devices.find(device => 
-            device.kind === 'videoinput' && device.label.toLowerCase().includes(label.toLowerCase())
-        );
-
+        const videoDevice = devices.find(device => device.kind === 'videoinput' && device.label.toLowerCase().includes(label.toLowerCase()));
         return videoDevice ? videoDevice.deviceId : null;
     };
 
@@ -68,7 +61,7 @@ const photoboothPreview = (function () {
     };
 
     // Initialize media
-    api.initializeMedia = async function (cb = () => {}) {
+    api.initializeMedia = async function (cb = () => { /* No-op */ }, retry = 0) {
         photoboothTools.console.logDev('Preview: Trying to initialize media...');
         if (!navigator.mediaDevices || config.preview.mode === PreviewMode.NONE.valueOf() || config.preview.mode === PreviewMode.URL.valueOf()) {
             photoboothTools.console.logDev('Preview: No preview from device cam or no webcam available!');
@@ -96,10 +89,10 @@ const photoboothPreview = (function () {
                 photoboothTools.console.logDev('Preview: Elgato getMedia done!');
                 api.stream = stream;
                 video.get(0).srcObject = stream; // Set the stream to the video element
-                cb();
+                cb(); // Call the callback
             } catch (error) {
                 console.error('ERROR: Preview: Could not get user media for Elgato: ', error);
-                handleMediaRetry(cb);
+                handleMediaRetry(cb, retry);
             }
         } else {
             try {
@@ -107,15 +100,15 @@ const photoboothPreview = (function () {
                 photoboothTools.console.logDev('Preview: Webcam getMedia done!');
                 api.stream = stream;
                 video.get(0).srcObject = stream; // Set the stream to the video element
-                cb();
+                cb(); // Call the callback
             } catch (error) {
                 console.error('ERROR: Preview: Could not get user media for webcam: ', error);
-                handleMediaRetry(cb);
+                handleMediaRetry(cb, retry);
             }
         }
     };
 
-    function handleMediaRetry(cb, retry = 0) {
+    function handleMediaRetry(cb, retry) {
         if (retry < retryGetMedia) {
             photoboothTools.console.logDev('Preview: Retrying to get user media. Retry ' + retry + ' / ' + retryGetMedia);
             retry += 1;
