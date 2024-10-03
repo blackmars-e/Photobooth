@@ -27,7 +27,7 @@ const photoboothPreview = (function () {
             video: {
                 width: config.preview.videoWidth,
                 height: config.preview.videoHeight,
-                label: 'Cam Link'
+                deviceId: { exact: null } // Start with null and set later
             }
         },
         api = {};
@@ -40,19 +40,15 @@ const photoboothPreview = (function () {
         collageFrame,
         retryGetMedia = 3;
 
-    // Add findDeviceByLabel function to the api object
+    // Find device by label
     api.findDeviceByLabel = async function (label) {
         const devices = await navigator.mediaDevices.enumerateDevices();
-   devices.forEach(device => {
-        if (device.kind === 'videoinput') {
-            console.log(`Device: ${device.label}, ID: ${device.deviceId}`);
-        }
-    });
-
-
-
-        const videoDevice = devices.find((device) => device.kind === 'videoinput' && device.label.includes(label));
-	 photoboothTools.console.logDev('test');
+        devices.forEach(device => {
+            if (device.kind === 'videoinput') {
+                console.log(`Device: ${device.label}, ID: ${device.deviceId}`);
+            }
+        });
+        const videoDevice = devices.find(device => device.kind === 'videoinput' && device.label.includes(label));
         return videoDevice ? videoDevice.deviceId : null;
     };
 
@@ -64,86 +60,65 @@ const photoboothPreview = (function () {
         video.show();
     };
 
-    // Mark initializeMedia as async
-    api.initializeMedia = async function (
-        cb = () => {
-            return;
-        },
-        retry = 0
-    ) {
+    // Initialize media
+    api.initializeMedia = async function (cb = () => {}, retry = 0) {
         photoboothTools.console.logDev('Preview: Trying to initialize media...');
-        if (
-            !navigator.mediaDevices ||
-            config.preview.mode === PreviewMode.NONE.valueOf() ||
-            config.preview.mode === PreviewMode.URL.valueOf()
-        ) {
+        if (!navigator.mediaDevices || config.preview.mode === PreviewMode.NONE.valueOf() || config.preview.mode === PreviewMode.URL.valueOf()) {
             photoboothTools.console.logDev('Preview: No preview from device cam or no webcam available!');
             return;
         }
-        const getMedia =
-            navigator.mediaDevices.getUserMedia ||
-            navigator.mediaDevices.webkitGetUserMedia ||
-            navigator.mediaDevices.mozGetUserMedia ||
-            false;
+
+        const getMedia = navigator.mediaDevices.getUserMedia || navigator.mediaDevices.webkitGetUserMedia || navigator.mediaDevices.mozGetUserMedia || false;
 
         if (!getMedia) {
             photoboothTools.console.logDev('Preview: Could not get media!');
             return;
         }
 
-        if (config.preview.mode === PreviewMode.ELGATO ) {
-            const deviceId = await api.findDeviceByLabel(elgatoConstraints.video.label);
+        if (config.preview.mode === PreviewMode.ELGATO) {
+            const deviceId = await api.findDeviceByLabel('Cam Link'); // Adjust this label if needed
             if (deviceId) {
                 elgatoConstraints.video.deviceId = { exact: deviceId };
+            } else {
+                console.error('Elgato device not found');
+                return; // Exit if the device is not found
             }
 
             try {
                 const stream = await getMedia(elgatoConstraints);
-                photoboothTools.console.logDev('Preview: getMedia done!');
+                photoboothTools.console.logDev('Preview: Elgato getMedia done!');
                 api.stream = stream;
                 video.get(0).srcObject = stream; // Set the stream to the video element
                 cb();
             } catch (error) {
-                photoboothTools.console.log('ERROR: Preview: Could not get user media: ', error);
-                if (retry < retryGetMedia) {
-                    photoboothTools.console.logDev(
-                        'Preview: Retrying to get user media. Retry ' + retry + ' / ' + retryGetMedia
-                    );
-                    retry += 1;
-                    setTimeout(function () {
-                        api.initializeMedia(cb, retry);
-                    }, 1000);
-                } else {
-                    photoboothTools.console.logDev(
-                        'ERROR: Preview: Unable to get user media. Failed retries: ' + retry
-                    );
-                }
+                console.error('ERROR: Preview: Could not get user media for Elgato: ', error);
+                handleMediaRetry(cb, retry);
             }
         } else {
             try {
                 const stream = await getMedia(webcamConstraints);
-                photoboothTools.console.logDev('Preview: getMedia done!');
+                photoboothTools.console.logDev('Preview: Webcam getMedia done!');
                 api.stream = stream;
                 video.get(0).srcObject = stream; // Set the stream to the video element
                 cb();
             } catch (error) {
-                photoboothTools.console.log('ERROR: Preview: Could not get user media: ', error);
-                if (retry < retryGetMedia) {
-                    photoboothTools.console.logDev(
-                        'Preview: Retrying to get user media. Retry ' + retry + ' / ' + retryGetMedia
-                    );
-                    retry += 1;
-                    setTimeout(function () {
-                        api.initializeMedia(cb, retry);
-                    }, 1000);
-                } else {
-                    photoboothTools.console.logDev(
-                        'ERROR: Preview: Unable to get user media. Failed retries: ' + retry
-                    );
-                }
+                console.error('ERROR: Preview: Could not get user media for webcam: ', error);
+                handleMediaRetry(cb, retry);
             }
         }
     };
+
+    function handleMediaRetry(cb, retry) {
+        if (retry < retryGetMedia) {
+            photoboothTools.console.logDev('Preview: Retrying to get user media. Retry ' + retry + ' / ' + retryGetMedia);
+            retry += 1;
+            setTimeout(() => {
+                api.initializeMedia(cb, retry);
+            }, 1000);
+        } else {
+            photoboothTools.console.logDev('ERROR: Preview: Unable to get user media. Failed retries: ' + retry);
+        }
+    }
 
     api.getAndDisplayMedia = async function (mode) {
         if (api.stream && api.stream.active) {
@@ -167,7 +142,6 @@ const photoboothPreview = (function () {
                 photoboothTools.console.log('Preview: ' + dataVideo.play + ' webcam successfully.');
                 pid = result.pid;
             })
-            // eslint-disable-next-line no-unused-vars
             .fail(function (xhr, status, result) {
                 photoboothTools.console.log('ERROR: Preview: Failed to ' + dataVideo.play + ' webcam!');
             });
@@ -188,11 +162,7 @@ const photoboothPreview = (function () {
                 api.runCmd('start');
                 break;
             case CameraDisplayMode.BACKGROUND:
-                if (
-                    (config.preview.mode === PreviewMode.DEVICE || config.preview.mode === PreviewMode.ELGATO) &&
-                    config.preview.cmd &&
-                    !config.preview.bsm
-                ) {
+                if ((config.preview.mode === PreviewMode.DEVICE || config.preview.mode === PreviewMode.ELGATO) && config.preview.cmd && !config.preview.bsm) {
                     photoboothTools.console.logDev('Preview: Running preview cmd (BACKGROUND).');
                     api.runCmd('start');
                 }
@@ -200,11 +170,7 @@ const photoboothPreview = (function () {
                 break;
             case CameraDisplayMode.COUNTDOWN:
                 if (config.commands.preview) {
-                    if (
-                        config.preview.bsm ||
-                        (!config.preview.bsm && retry > 0) ||
-                        (typeof photoBooth !== 'undefined' && photoBooth.nextCollageNumber > 0)
-                    ) {
+                    if (config.preview.bsm || (!config.preview.bsm && retry > 0) || (typeof photoBooth !== 'undefined' && photoBooth.nextCollageNumber > 0)) {
                         photoboothTools.console.logDev('Preview: Running preview cmd (COUNTDOWN).');
                         api.runCmd('start');
                     }
@@ -253,7 +219,7 @@ const photoboothPreview = (function () {
     api.stopVideo = function () {
         loader.css('--stage-background', null);
         if (api.stream) {
-            api.stream.getTracks()[0].stop();
+            api.stream.getTracks().forEach(track => track.stop());
             api.stream = null;
         }
         video.hide();
